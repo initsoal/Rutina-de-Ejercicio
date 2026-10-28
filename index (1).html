@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker de Entrenamiento - Ingrid Itzel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        :root { --pf-purple: #5c2c90; --pf-yellow: #ffd200; --pf-light: #f4eaff;}
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #1a1a1a; }
+        .text-pf-purple { color: var(--pf-purple); }
+        .bg-pf-purple { background-color: var(--pf-purple); }
+        .bg-pf-yellow { background-color: var(--pf-yellow); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const ExerciseIcon = () => (
+            <div className="bg-[#f4eaff] rounded-xl p-2 mb-4 flex justify-center items-center h-28 border-2 border-dashed border-[#5c2c90]/30 shadow-inner">
+                <svg width="100%" height="100%" viewBox="0 0 64 64" fill="none" stroke="#5c2c90" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    {/* Cabeza con coleta (representando mujer) */}
+                    <circle cx="32" cy="18" r="5" fill="#5c2c90" />
+                    <path d="M36 15c2 0 4 2 4 4s-2 6-2 6" strokeWidth="2"/>
+                    {/* Cuerpo */}
+                    <path d="M32 23v16" />
+                    {/* Brazos en acción */}
+                    <path d="M32 27c-4-2-8-3-12-2" />
+                    <path d="M32 27c4-2 8-3 12-2" />
+                    <circle cx="20" cy="25" r="2" fill="#ffd200" stroke="none"/>
+                    <circle cx="44" cy="25" r="2" fill="#ffd200" stroke="none"/>
+                    {/* Piernas */}
+                    <path d="M32 39l-8 12" />
+                    <path d="M32 39l8 12" />
+                    {/* Base/Máquina */}
+                    <rect x="18" y="52" width="28" height="4" rx="2" fill="#ffd200" stroke="none" opacity="0.6"/>
+                </svg>
+            </div>
+        );
+
+        const routines = [
+            {
+                day: "Lunes",
+                title: "DÍA LUNES - SESIÓN 1",
+                focus: "TREN INFERIOR A (Piernas y Glúteos)",
+                exercises: [
+                    { name: "Prensa de Piernas", reps: "3 sets x 15 reps", weight: "30-50 lbs" },
+                    { name: "Peso Muerto Rumano", reps: "3 sets x 12 reps", weight: "10-15 lbs" },
+                    { name: "Sentadilla Goblet", reps: "3 sets x 12 reps", weight: "10-15 lbs" },
+                    { name: "Aductores en Máquina", reps: "3 sets x 15 reps", weight: "20-30 lbs" }
+                ]
+            },
+            {
+                day: "Miércoles",
+                title: "DÍA MIÉRCOLES - SESIÓN 2",
+                focus: "TREN SUPERIOR A (Espalda y Pecho)",
+                exercises: [
+                    { name: "Jalón al Pecho", reps: "3 sets x 15 reps", weight: "20-30 lbs" },
+                    { name: "Empuje de Pecho", reps: "3 sets x 12 reps", weight: "15-25 lbs" },
+                    { name: "Remo Sentado", reps: "3 sets x 15 reps", weight: "20-30 lbs" },
+                    { name: "Elevaciones Laterales", reps: "3 sets x 12 reps", weight: "5 lbs" }
+                ]
+            },
+            {
+                day: "Viernes",
+                title: "DÍA VIERNES - SESIÓN 3",
+                focus: "TREN INFERIOR B (Cuádriceps)",
+                exercises: [
+                    { name: "Extensiones de Pierna", reps: "3 sets x 15 reps", weight: "15-20 lbs" },
+                    { name: "Curl de Pierna", reps: "3 sets x 15 reps", weight: "15-20 lbs" },
+                    { name: "Desplantes hacia atrás", reps: "3 sets x 10 reps", weight: "Sin peso" },
+                    { name: "Abductores en Máquina", reps: "3 sets x 15 reps", weight: "20-30 lbs" }
+                ]
+            },
+            {
+                day: "Sábado",
+                title: "DÍA SÁBADO - SESIÓN 4",
+                focus: "TREN SUPERIOR B (Brazos)",
+                exercises: [
+                    { name: "Aperturas de Pecho", reps: "3 sets x 15 reps", weight: "10-15 lbs" },
+                    { name: "Tríceps en Polea", reps: "3 sets x 15 reps", weight: "10-20 lbs" },
+                    { name: "Curl de Bíceps", reps: "3 sets x 15 reps", weight: "5-8 lbs" },
+                    { name: "Press de Hombro", reps: "3 sets x 12 reps", weight: "10-15 lbs" }
+                ]
+            }
+        ];
+
+        function App() {
+            const [unit, setUnit] = useState('lbs');
+            const [logs, setLogs] = useState({});
+
+            useEffect(() => {
+                const saved = localStorage.getItem('ingridTrackerV2');
+                if (saved) setLogs(JSON.parse(saved));
+            }, []);
+
+            const saveLog = (exercise, weight) => {
+                const newLogs = { ...logs };
+                if (!newLogs[exercise]) newLogs[exercise] = [];
+                newLogs[exercise].push({ date: new Date().toLocaleDateString(), weight, unit });
+                setLogs(newLogs);
+                localStorage.setItem('ingridTrackerV2', JSON.stringify(newLogs));
+            };
+
+            return (
+                <div className="max-w-7xl mx-auto p-4 md:p-8">
+                    {/* Header estilo Infografía */}
+                    <div className="bg-[#2a1b3d] rounded-t-2xl p-6 border-b-4 border-pf-yellow text-center shadow-2xl">
+                        <div className="flex justify-center mb-2">
+                            <span className="text-pf-yellow text-4xl mr-2">⭐</span>
+                        </div>
+                        <h1 className="text-2xl md:text-4xl font-extrabold text-white tracking-wide uppercase mb-2">
+                            Plan de Entrenamiento: Mes 1 (Enfoque Pérdida de Peso)
+                        </h1>
+                        <p className="text-pf-yellow text-lg md:text-xl font-bold bg-black/30 inline-block px-6 py-2 rounded-full mb-4">
+                            PLANET FITNESS (INDEPENDENCIA, GDL)
+                        </p>
+                        <div className="bg-[#8b45a3] text-white py-2 px-4 rounded-full text-sm font-semibold max-w-2xl mx-auto border border-white/20">
+                            Perfil: Mujer, 29 años, transición sedentarismo-activa | Objetivo: Pérdida de peso, Sin volumen
+                        </div>
+                    </div>
+                    
+                    {/* Selector de Unidades */}
+                    <div className="bg-white p-4 flex justify-end items-center border-b border-gray-200">
+                        <label className="mr-3 font-bold text-gray-700">Registrar pesos en:</label>
+                        <select className="bg-gray-100 border-2 border-pf-purple text-pf-purple p-2 rounded-lg font-bold outline-none cursor-pointer focus:ring-2 focus:ring-pf-purple/50" value={unit} onChange={(e)=>setUnit(e.target.value)}>
+                            <option value="lbs">Libras (lbs)</option>
+                            <option value="kg">Kilos (kg)</option>
+                        </select>
+                    </div>
+                    
+                    {/* Contenedor Principal (4 Columnas) */}
+                    <div className="bg-[#e9e4f0] p-6 rounded-b-2xl shadow-2xl">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                            {routines.map((routine, idx) => (
+                                <div key={idx} className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-full border-t-8 border-[#e6e6fa]">
+                                    
+                                    {/* Cabecera del Día */}
+                                    <div className="bg-[#e6e6fa] p-4 text-center border-b-2 border-white">
+                                        <h2 className="text-2xl font-black text-[#2a1b3d] mb-1">{routine.day}</h2>
+                                        <p className="text-xs font-bold text-gray-700 uppercase">{routine.title}</p>
+                                        <p className="text-xs text-gray-600 mt-1">{routine.focus}</p>
+                                    </div>
+
+                                    {/* Lista de Ejercicios */}
+                                    <div className="p-4 flex-grow flex flex-col gap-6">
+                                        {routine.exercises.map((ex, i) => {
+                                            const globalId = `${idx}-${i}`;
+                                            return (
+                                                <div key={i} className="flex flex-col border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                                                    
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <div className="w-20 h-20 flex-shrink-0">
+                                                            <ExerciseIcon />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-bold text-[#2a1b3d] text-sm leading-tight">{i+1}. {ex.name}</h3>
+                                                            <p className="text-xs text-gray-600 mt-1">{ex.reps}</p>
+                                                            <p className="text-[10px] font-semibold text-pf-purple bg-pf-purple/10 inline-block px-2 py-1 rounded mt-1">Sugerido: {ex.weight}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <input 
+                                                            type="number" 
+                                                            id={`input-${globalId}`}
+                                                            className="border-2 border-gray-200 rounded-lg p-2 w-full text-sm font-semibold focus:border-pf-purple outline-none" 
+                                                            placeholder={`Log en ${unit}`}
+                                                        />
+                                                        <button 
+                                                            onClick={() => {
+                                                                const input = document.getElementById(`input-${globalId}`);
+                                                                if(input.value) {
+                                                                    saveLog(ex.name, input.value);
+                                                                    input.value = '';
+                                                                    const btn = document.getElementById(`btn-${globalId}`);
+                                                                    btn.innerHTML = '✓';
+                                                                    btn.classList.replace('bg-pf-purple', 'bg-green-500');
+                                                                    setTimeout(() => {
+                                                                        btn.innerHTML = '+';
+                                                                        btn.classList.replace('bg-green-500', 'bg-pf-purple');
+                                                                    }, 1500);
+                                                                }
+                                                            }}
+                                                            id={`btn-${globalId}`}
+                                                            className="bg-pf-purple text-white w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-lg font-bold hover:bg-purple-900 transition-colors"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <div className="mt-2 text-right">
+                                                        <span className="text-[10px] text-gray-400 mr-1">Tú récord:</span>
+                                                        <span className="text-xs font-bold text-green-600">
+                                                            {logs[ex.name] ? `${logs[ex.name][logs[ex.name].length-1].weight} ${logs[ex.name][logs[ex.name].length-1].unit}` : '--'}
+                                                        </span>
+                                                    </div>
+
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    {/* Reglas de Oro */}
+                    <div className="bg-[#2a1b3d] text-white mt-6 rounded-2xl p-4 flex flex-col md:flex-row justify-around items-center gap-4 text-sm font-bold border-b-4 border-pf-yellow shadow-xl">
+                        <div className="flex items-center gap-2"><span>⏱️</span> 1. Descanso 45-60s entre series</div>
+                        <div className="flex items-center gap-2"><span>🏃‍♀️</span> 2. Prioridad al Cardio</div>
+                        <div className="flex items-center gap-2"><span>💧</span> 3. Agua e Hidratación</div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
