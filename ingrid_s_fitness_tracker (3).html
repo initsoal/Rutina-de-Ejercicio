@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plan de Entrenamiento personalizado para Ingrid Itzel. Registro de rutinas, pesos y progreso.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏋️‍♀️</text></svg>">
+    <title>Plan de Entrenamiento - Ingrid Itzel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        pf: {
+                            purple: '#3b2559',
+                            purpleDark: '#2c1a44',
+                            purpleLight: '#5a3d82',
+                            yellow: '#ffd800',
+                            yellowDark: '#ccad00',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .tab-active { border-bottom: 4px solid #ffd800; color: #ffd800; font-weight: bold; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased pb-24">
+
+    <!-- Header -->
+    <header class="bg-pf-purple text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-pf-yellow">¡Hola, Ingrid Itzel! 🌟</h1>
+                <p class="text-sm opacity-90">Mes 1: Transición Activa & Pérdida de Peso</p>
+            </div>
+            <button onclick="toggleModal('rulesModal')" class="bg-pf-purpleLight hover:bg-pf-purpleDark text-white p-2 rounded-full transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pf-yellow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <nav class="max-w-4xl mx-auto flex overflow-x-auto hide-scrollbar">
+            <button onclick="switchView('dashboard')" id="tab-dashboard" class="px-4 py-3 whitespace-nowrap text-white opacity-80 hover:opacity-100 transition tab-active">Dashboard</button>
+            <button onclick="switchView('profile')" id="tab-profile" class="px-4 py-3 whitespace-nowrap text-white opacity-80 hover:opacity-100 transition text-pf-yellow"><span class="mr-1">⚖️</span> Mi Progreso</button>
+            <button onclick="switchView('monday')" id="tab-monday" class="px-4 py-3 whitespace-nowrap text-white opacity-80 hover:opacity-100 transition">Lunes</button>
+            <button onclick="switchView('tuesday')" id="tab-tuesday" class="px-4 py-3 whitespace-nowrap text-white opacity-80 hover:opacity-100 transition">Martes</button>
+            <button onclick="switchView('wednesday')" id="tab-wednesday" class="px-4 py-3 whitespace-nowrap text-white opacity-80 hover:opacity-100 transition">Miércoles</button>
+            <button onclick="switchView('thursday')" id="tab-thursday" class="px-4 py-3 whitespace-nowrap text-white opacity-80 hover:opacity-100 transition">Jueves</button>
+            <button onclick="switchView('friday')" id="tab-friday" class="px-4 py-3 whitespace-nowrap text-white opacity-80 hover:opacity-100 transition">Viernes</button>
+            <button onclick="switchView('saturday')" id="tab-saturday" class="px-4 py-3 whitespace-nowrap text-white opacity-80 hover:opacity-100 transition">Sábado</button>
+            <button onclick="switchView('sunday')" id="tab-sunday" class="px-4 py-3 whitespace-nowrap text-white opacity-80 hover:opacity-100 transition">Domingo</button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto p-4 mt-4">
+        
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard" class="block space-y-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+                    <span class="text-sm text-gray-500 font-semibold mb-1">Días Entrenados</span>
+                    <span class="text-3xl font-bold text-pf-purple" id="dash-days">0/4</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+                    <span class="text-sm text-gray-500 font-semibold mb-1">Ejercicios</span>
+                    <span class="text-3xl font-bold text-pf-purple" id="dash-exercises">0/20</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+                    <span class="text-sm text-gray-500 font-semibold mb-1">Volumen (kg)</span>
+                    <span class="text-3xl font-bold text-pf-yellowDark" id="dash-volume">0</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+                    <span class="text-sm text-gray-500 font-semibold mb-1">Compromiso</span>
+                    <span class="text-3xl font-bold text-green-500" id="dash-commitment">0%</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-700 mb-4 text-center">Métricas de Rendimiento</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="text-sm text-center text-gray-500 mb-2">Ejercicios Completados</h4>
+                        <div class="relative h-48">
+                            <canvas id="commitmentChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm text-center text-gray-500 mb-2">Volumen: Inferior vs Superior</h4>
+                        <div class="relative h-48">
+                            <canvas id="volumeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 mt-4 text-center">*Los gráficos se actualizan conforme marcas tus ejercicios completados y pesos.</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-700 mb-2">Referencia Visual</h3>
+                <button onclick="toggleModal('imageModal')" class="w-full bg-gray-100 hover:bg-gray-200 text-pf-purple font-semibold py-3 rounded-xl transition flex justify-center items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                    </svg>
+                    Ver Infografía del Plan
+                </button>
+            </div>
+        </section>
+
+        <!-- WORKOUT VIEWS CONTAINER -->
+        <section id="view-workout" class="hidden">
+            <div class="mb-6 flex justify-between items-end">
+                <div>
+                    <h2 class="text-xl font-bold text-pf-purple" id="workout-title">Día</h2>
+                    <p class="text-sm text-gray-500" id="workout-focus">Enfoque</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-sm font-semibold text-pf-purpleLight bg-pf-purpleLight/10 px-3 py-1 rounded-full" id="workout-progress">0%</span>
+                </div>
+            </div>
+
+            <div id="exercise-list" class="space-y-4">
+                <!-- Exercises injected here via JS -->
+            </div>
+        </section>
+
+        <!-- PROFILE / PROGRESS VIEW -->
+        <section id="view-profile" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-xl font-bold text-pf-purple mb-4">Registro Corporal e IMC</h2>
+                <p class="text-sm text-gray-500 mb-6">Lleva un control de tu peso semanal y descubre cómo mejora tu salud en general a lo largo del tiempo.</p>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 text-center shadow-inner">
+                        <span class="text-xs text-gray-500 font-semibold block mb-1">Estatura (metros)</span>
+                        <input type="number" step="0.01" id="input-height" value="1.62" class="w-full bg-transparent text-2xl font-bold text-pf-purple text-center focus:outline-none focus:border-b-2 focus:border-pf-yellow transition" onchange="renderProfile()">
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 text-center shadow-inner">
+                        <span class="text-xs text-gray-500 font-semibold block mb-1">Peso Actual (kg)</span>
+                        <span class="text-2xl font-bold text-pf-purple" id="display-current-weight">0</span>
+                    </div>
+                    <div class="bg-pf-purple/5 p-4 rounded-xl border border-pf-purple/20 text-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-transparent to-pf-purple/10 pointer-events-none"></div>
+                        <span class="text-xs text-pf-purpleLight font-semibold block mb-1">Tu IMC</span>
+                        <span class="text-2xl font-bold text-pf-purple relative z-10" id="display-imc">0</span>
+                        <span class="text-xs font-bold block mt-1 relative z-10" id="display-imc-status">-</span>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200 text-center">
+                        <span class="text-xs text-green-700 font-semibold block mb-1">Progreso Total</span>
+                        <span class="text-2xl font-bold text-green-600" id="display-weight-lost">0 kg</span>
+                    </div>
+                </div>
+
+                <div class="bg-pf-purpleLight/10 p-5 rounded-xl mb-6 flex flex-col md:flex-row gap-4 items-end border border-pf-purpleLight/20">
+                    <div class="flex-1 w-full">
+                        <label class="text-sm font-bold text-pf-purpleDark block mb-2">Registrar Nuevo Peso Semanal (kg)</label>
+                        <input type="number" step="0.1" id="new-weight-input" placeholder="Ej. 78.5" class="w-full p-3 border border-white shadow-sm rounded-lg focus:outline-none focus:border-pf-purple focus:ring-2 focus:ring-pf-purple/50 text-lg font-semibold text-gray-700">
+                    </div>
+                    <button onclick="addWeightRecord()" class="w-full md:w-auto bg-pf-purple hover:bg-pf-purpleDark text-pf-yellow font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105 whitespace-nowrap shadow-md">
+                        + Guardar Registro
+                    </button>
+                </div>
+
+                <div class="mt-8 border-t border-gray-100 pt-6">
+                    <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pf-purpleLight" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" /></svg>
+                        Curva de Pérdida de Peso
+                    </h3>
+                    <div class="h-64 w-full relative">
+                        <canvas id="bodyWeightChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rules Modal -->
+    <div id="rulesModal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-transform">
+            <h3 class="text-2xl font-bold text-pf-purple mb-4 flex items-center gap-2">
+                <span class="text-pf-yellow">🏆</span> 3 Reglas de Oro
+            </h3>
+            <ul class="space-y-4 text-gray-700">
+                <li class="flex gap-3">
+                    <div class="bg-pf-purple text-white rounded-full w-8 h-8 flex items-center justify-center shrink-0 font-bold">1</div>
+                    <div>
+                        <strong>Descanso entre series:</strong><br>
+                        Descansa de 45 a 60 segundos entre cada serie para recuperar el aliento.
+                    </div>
+                </li>
+                <li class="flex gap-3">
+                    <div class="bg-pf-purple text-white rounded-full w-8 h-8 flex items-center justify-center shrink-0 font-bold">2</div>
+                    <div>
+                        <strong>Prioridad al Cardio:</strong><br>
+                        Si tienes prisa, acorta las pesas a 2 series, pero NO te saltes el cardio.
+                    </div>
+                </li>
+                <li class="flex gap-3">
+                    <div class="bg-pf-purple text-white rounded-full w-8 h-8 flex items-center justify-center shrink-0 font-bold">3</div>
+                    <div>
+                        <strong>Agua e Hidratación:</strong><br>
+                        Lleva tu cilindro. Beber agua ayuda al cuerpo a metabolizar la grasa.
+                    </div>
+                </li>
+            </ul>
+            <button onclick="toggleModal('rulesModal')" class="mt-6 w-full bg-pf-yellow hover:bg-pf-yellowDark text-pf-purpleDark font-bold py-3 rounded-xl transition">
+                ¡Entendido!
+            </button>
+        </div>
+    </div>
+
+    <!-- Image Reference Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-2 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-5xl overflow-hidden relative shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-3 bg-pf-purple text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold">Infografía del Plan</h3>
+                <button onclick="toggleModal('imageModal')" class="text-white hover:text-pf-yellow transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="overflow-auto p-2 bg-gray-100 flex-1 flex justify-center items-center">
+                <img src="image_f61e9a.jpg" alt="Plan de Entrenamiento Planet Fitness" class="max-w-full h-auto rounded shadow" onerror="this.src='https://placehold.co/800x400/3b2559/ffd800?text=Imagen+del+Plan+No+Encontrada'">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STATE ---
+        const svgs = {
+            cardio: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%232c1a44"/><circle cx="50" cy="30" r="12" fill="%23ffd800"/><path d="M50 42 v25 m-15 -10 l 15 10 l 15 -15 m -15 15 l -15 20 m 15 -20 l 15 20" stroke="%23ffd800" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+            legs: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%232c1a44"/><circle cx="50" cy="25" r="10" fill="%23ffd800"/><path d="M50 35 v25 m-20 5 l 20 -5 l 20 5 m-20 5 l -15 20 h 10 m 5 -20 l 15 20 h -10" stroke="%23ffd800" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 45 h60" stroke="%23ffffff" stroke-width="6" stroke-linecap="round"/></svg>',
+            chest: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%232c1a44"/><circle cx="50" cy="25" r="10" fill="%23ffd800"/><path d="M50 35 v35 m-20 -20 h 40 m-20 20 l -15 20 m 15 -20 l 15 20" stroke="%23ffd800" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><rect x="25" y="45" width="10" height="10" fill="%23ffffff" rx="2"/><rect x="65" y="45" width="10" height="10" fill="%23ffffff" rx="2"/></svg>',
+            back: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%232c1a44"/><circle cx="50" cy="30" r="10" fill="%23ffd800"/><path d="M50 40 v30 m-25 -25 l 25 15 l 25 -15 m-25 15 l -15 25 m 15 -25 l 15 25" stroke="%23ffd800" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 15 h50" stroke="%23ffffff" stroke-width="6" stroke-linecap="round"/></svg>',
+            arms: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%232c1a44"/><circle cx="50" cy="30" r="10" fill="%23ffd800"/><path d="M50 40 v30 m-15 -10 c 0 -15, 30 -15, 30 0 m-15 10 l -15 20 m 15 -20 l 15 20" stroke="%23ffd800" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="35" cy="50" r="6" fill="%23ffffff"/><circle cx="65" cy="50" r="6" fill="%23ffffff"/></svg>',
+            rest: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200"><rect width="400" height="200" rx="20" fill="%232c1a44"/><circle cx="200" cy="80" r="30" fill="%23ffd800"/><path d="M160 130 q 40 30 80 0" stroke="%23ffd800" stroke-width="8" stroke-linecap="round" fill="none"/><text x="200" y="180" font-family="sans-serif" font-size="24" font-weight="bold" fill="%23ffffff" text-anchor="middle">DESCANSO / RECUPERACIÓN</text></svg>'
+        };
+
+        const userData = {
+            height: 1.62, // Estatura en metros por defecto (Ingrid puede editarlo)
+            weightHistory: [
+                { date: 'Inicio', weight: 80.0 }, // Peso inicial basado en el perfil
+                { date: 'Semana 1', weight: 79.2 }, // Datos simulados de ejemplo
+                { date: 'Semana 2', weight: 78.5 }
+            ]
+        };
+
+        const workoutData = {
+            monday: {
+                id: 'monday',
+                type: 'workout',
+                title: 'LUNES - Tren Inferior A',
+                focus: 'Piernas y Glúteos (Fuerza General)',
+                exercises: [
+                    { id: 'mon_1', type: 'cardio', name: 'Cardio: Caminadora', desc: '30-40 min | Vel: 4.0 | Inclinación: 3-5', done: false, img: svgs.cardio },
+                    { id: 'mon_2', type: 'strength', name: 'Prensa de Piernas', sets: 3, reps: 15, sugWeight: '13-22', actualWeight: '', done: false, img: svgs.legs },
+                    { id: 'mon_3', type: 'strength', name: 'Peso Muerto Rumano', sets: 3, reps: 12, sugWeight: '4.5-7 (c/u)', actualWeight: '', done: false, img: svgs.legs },
+                    { id: 'mon_4', type: 'strength', name: 'Sentadilla Goblet', sets: 3, reps: 12, sugWeight: '4.5-7', actualWeight: '', done: false, img: svgs.legs },
+                    { id: 'mon_5', type: 'strength', name: 'Aductores en Máquina', sets: 3, reps: 15, sugWeight: '9-13', actualWeight: '', done: false, img: svgs.legs }
+                ]
+            },
+            tuesday: {
+                id: 'tuesday', type: 'rest', title: 'MARTES - Descanso', focus: 'Día pesado escolar/laboral (Home Office)', img: svgs.rest
+            },
+            wednesday: {
+                id: 'wednesday',
+                type: 'workout',
+                title: 'MIÉRCOLES - Tren Superior A',
+                focus: 'Espalda y Pecho (Postura y firmeza)',
+                exercises: [
+                    { id: 'wed_1', type: 'cardio', name: 'Cardio: Elíptica', desc: '30-45 min | Resistencia Nivel 3-5', done: false, img: svgs.cardio },
+                    { id: 'wed_2', type: 'strength', name: 'Jalón al Pecho', sets: 3, reps: 15, sugWeight: '9-13', actualWeight: '', done: false, img: svgs.back },
+                    { id: 'wed_3', type: 'strength', name: 'Empuje de Pecho', sets: 3, reps: 12, sugWeight: '7-11', actualWeight: '', done: false, img: svgs.chest },
+                    { id: 'wed_4', type: 'strength', name: 'Remo Sentado', sets: 3, reps: 15, sugWeight: '9-13', actualWeight: '', done: false, img: svgs.back },
+                    { id: 'wed_5', type: 'strength', name: 'Elevaciones Laterales', sets: 3, reps: 12, sugWeight: '2.2 (c/u)', actualWeight: '', done: false, img: svgs.arms }
+                ]
+            },
+            thursday: {
+                id: 'thursday', type: 'rest', title: 'JUEVES - Descanso', focus: 'Día pesado escolar/laboral (Home Office)', img: svgs.rest
+            },
+            friday: {
+                id: 'friday',
+                type: 'workout',
+                title: 'VIERNES - Tren Inferior B',
+                focus: 'Cuádriceps e Isquiotibiales (Aislamiento)',
+                exercises: [
+                    { id: 'fri_1', type: 'cardio', name: 'Cardio: Bicicleta Estática', desc: '30 min | Ritmo constante', done: false, img: svgs.cardio },
+                    { id: 'fri_2', type: 'strength', name: 'Extensiones de Pierna', sets: 3, reps: 15, sugWeight: '7-9', actualWeight: '', done: false, img: svgs.legs },
+                    { id: 'fri_3', type: 'strength', name: 'Curl de Pierna Sentada', sets: 3, reps: 15, sugWeight: '7-9', actualWeight: '', done: false, img: svgs.legs },
+                    { id: 'fri_4', type: 'strength', name: 'Desplantes hacia atrás', sets: 3, reps: 10, sugWeight: '0 (Peso corporal)', actualWeight: '0', done: false, img: svgs.legs },
+                    { id: 'fri_5', type: 'strength', name: 'Abductores en Máquina', sets: 3, reps: 15, sugWeight: '9-13', actualWeight: '', done: false, img: svgs.legs }
+                ]
+            },
+            saturday: {
+                id: 'saturday',
+                type: 'workout',
+                title: 'SÁBADO - Tren Superior B',
+                focus: 'Brazos y Hombros (Tonificar)',
+                exercises: [
+                    { id: 'sat_1', type: 'cardio', name: 'Cardio: Caminadora/Remo', desc: '30 min | Ritmo moderado', done: false, img: svgs.cardio },
+                    { id: 'sat_2', type: 'strength', name: 'Aperturas de Pecho', sets: 3, reps: 15, sugWeight: '4.5-7', actualWeight: '', done: false, img: svgs.chest },
+                    { id: 'sat_3', type: 'strength', name: 'Tríceps en Polea Alta', sets: 3, reps: 15, sugWeight: '4.5-9', actualWeight: '', done: false, img: svgs.arms },
+                    { id: 'sat_4', type: 'strength', name: 'Curl de Bíceps', sets: 3, reps: 15, sugWeight: '2-3.5 (c/u)', actualWeight: '', done: false, img: svgs.arms },
+                    { id: 'sat_5', type: 'strength', name: 'Press de Hombro', sets: 3, reps: 12, sugWeight: '4.5-7', actualWeight: '', done: false, img: svgs.chest }
+                ]
+            },
+            sunday: {
+                id: 'sunday', type: 'rest', title: 'DOMINGO - Recuperación Activa', focus: 'Descanso total o caminata ligera', img: svgs.rest
+            }
+        };
+
+        let currentDay = 'dashboard';
+        let commitmentChartInstance = null;
+        let volumeChartInstance = null;
+        let bodyWeightChartInstance = null;
+
+        // --- CORE LOGIC ---
+
+        function init() {
+            // Load state from local memory if desired, currently purely session in-memory
+            initChart();
+            initBodyChart();
+            updateDashboardMetrics();
+            renderProfile(); // Initialize profile data
+        }
+
+        function switchView(view) {
+            currentDay = view;
+            
+            // Update tabs UI
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('tab-active', 'font-bold', 'text-pf-yellow');
+                btn.classList.add('opacity-80');
+            });
+            const activeBtn = document.getElementById(`tab-${view}`);
+            activeBtn.classList.add('tab-active', 'font-bold', 'text-pf-yellow');
+            activeBtn.classList.remove('opacity-80');
+
+            // Hide all views first
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-workout').classList.add('hidden');
+            document.getElementById('view-profile').classList.add('hidden');
+
+            // Switch content
+            if (view === 'dashboard') {
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                updateDashboardMetrics();
+            } else if (view === 'profile') {
+                document.getElementById('view-profile').classList.remove('hidden');
+                renderProfile();
+            } else {
+                document.getElementById('view-workout').classList.remove('hidden');
+                renderWorkoutDay(view);
+            }
+        }
+
+        function renderWorkoutDay(dayKey) {
+            const dayData = workoutData[dayKey];
+            document.getElementById('workout-title').innerText = dayData.title;
+            document.getElementById('workout-focus').innerText = dayData.focus;
+            
+            const listEl = document.getElementById('exercise-list');
+            listEl.innerHTML = '';
+
+            // Handle Rest Days
+            if (dayData.type === 'rest') {
+                listEl.innerHTML = `
+                    <div class="text-center p-8 glass-card rounded-2xl border border-pf-purpleLight shadow-sm mt-4">
+                        <img src="${dayData.img}" class="mx-auto rounded-xl mb-6 shadow-md border-4 border-white w-full max-w-sm object-cover" alt="Día de descanso">
+                        <h3 class="text-2xl font-bold text-pf-purple mb-2">¡Tómate un respiro!</h3>
+                        <p class="text-gray-600 text-lg">El descanso es fundamental para la recuperación y pérdida de peso. Disfruta tu día libre.</p>
+                    </div>
+                `;
+                document.getElementById('workout-progress').innerText = `100% Recuperación`;
+                return;
+            }
+
+            let completedCount = 0;
+
+            dayData.exercises.forEach((ex, index) => {
+                if(ex.done) completedCount++;
+                
+                const card = document.createElement('div');
+                card.className = `glass-card p-4 md:p-5 rounded-2xl border transition-all ${ex.done ? 'border-pf-yellow bg-pf-yellow/5' : 'border-gray-200'} shadow-sm relative overflow-hidden`;
+                
+                if(ex.done) {
+                    card.innerHTML += `<div class="absolute top-0 right-0 bg-pf-yellow text-pf-purpleDark text-xs font-bold px-3 py-1 rounded-bl-lg">Completado</div>`;
+                }
+
+                let innerContent = `
+                    <div class="flex items-start gap-4">
+                        <img src="${ex.img}" alt="${ex.name}" class="w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-gray-100 object-cover shrink-0 bg-white shadow-sm">
+                        <div class="flex-1 flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">#${index + 1}</span>
+                                    <h3 class="font-bold text-base md:text-lg text-gray-800 ${ex.done ? 'line-through opacity-70' : ''}">${ex.name}</h3>
+                                </div>
+                                
+                                ${ex.type === 'cardio' 
+                                    ? `<p class="text-xs md:text-sm text-gray-600 mt-1">🎯 ${ex.desc}</p>`
+                                    : `<p class="text-xs md:text-sm text-gray-600 mt-1">🎯 ${ex.sets} series x ${ex.reps} reps <br><span class="text-xs text-gray-400 font-semibold mt-1 inline-block">Peso sug: ${ex.sugWeight} kg</span></p>`
+                                }
+                            </div>
+                            
+                            <button onclick="toggleExercise('${dayKey}', '${ex.id}')" 
+                                    class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors ml-2 ${ex.done ? 'bg-pf-yellow border-pf-yellow text-pf-purple' : 'border-gray-300 text-gray-300 hover:border-pf-purple hover:text-pf-purple'}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Add weight input for strength exercises
+                if (ex.type === 'strength') {
+                    innerContent += `
+                        <div class="mt-4 md:ml-[5.5rem] bg-gray-50 rounded-xl p-3 flex items-center justify-between border border-gray-100">
+                            <label class="text-sm text-gray-600 font-semibold">Peso utilizado (kg):</label>
+                            <input type="number" 
+                                   class="w-20 text-center font-bold text-pf-purple bg-white border border-gray-300 rounded-lg p-1 focus:outline-none focus:border-pf-yellow focus:ring-1 focus:ring-pf-yellow transition" 
+                                   placeholder="0" 
+                                   value="${ex.actualWeight}" 
+                                   onchange="updateWeight('${dayKey}', '${ex.id}', this.value)"
+                                   ${ex.name.includes('Desplantes') ? 'disabled' : ''}>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML += innerContent;
+                listEl.appendChild(card);
+            });
+
+            // Update Progress
+            const progress = Math.round((completedCount / dayData.exercises.length) * 100);
+            document.getElementById('workout-progress').innerText = `${progress}% Completado`;
+        }
+
+        function toggleExercise(dayKey, exId) {
+            const dayData = workoutData[dayKey];
+            const exercise = dayData.exercises.find(e => e.id === exId);
+            if (exercise) {
+                exercise.done = !exercise.done;
+                renderWorkoutDay(dayKey);
+                updateDashboardMetrics();
+                updateChart();
+            }
+        }
+
+        function updateWeight(dayKey, exId, val) {
+            const dayData = workoutData[dayKey];
+            const exercise = dayData.exercises.find(e => e.id === exId);
+            if (exercise) {
+                exercise.actualWeight = val;
+                updateDashboardMetrics();
+                updateChart();
+            }
+        }
+
+        function updateDashboardMetrics() {
+            let totalExercises = 0;
+            let completedExercises = 0;
+            let daysTrained = 0;
+            let totalVolume = 0;
+
+            for (const day in workoutData) {
+                if(workoutData[day].type === 'rest') continue; // Skip rest days in logic
+
+                const exercises = workoutData[day].exercises;
+                let dayCompletedCount = 0;
+                
+                exercises.forEach(ex => {
+                    totalExercises++;
+                    if (ex.done) {
+                        completedExercises++;
+                        dayCompletedCount++;
+                        
+                        if (ex.type === 'strength' && ex.actualWeight && !isNaN(ex.actualWeight)) {
+                            const weightVal = parseFloat(ex.actualWeight);
+                            totalVolume += (weightVal * ex.reps * ex.sets);
+                        }
+                    }
+                });
+
+                if(dayCompletedCount > 0) daysTrained++;
+            }
+
+            document.getElementById('dash-days').innerText = `${daysTrained}/4`;
+            document.getElementById('dash-exercises').innerText = `${completedExercises}/${totalExercises}`;
+            document.getElementById('dash-volume').innerText = totalVolume.toLocaleString(undefined, {maximumFractionDigits: 1});
+            
+            const commitment = Math.round((completedExercises / totalExercises) * 100) || 0;
+            const commitEl = document.getElementById('dash-commitment');
+            commitEl.innerText = `${commitment}%`;
+            
+            if(commitment < 30) commitEl.className = "text-3xl font-bold text-red-500";
+            else if(commitment < 70) commitEl.className = "text-3xl font-bold text-yellow-500";
+            else commitEl.className = "text-3xl font-bold text-green-500";
+        }
+
+        // --- DASHBOARD CHARTS ---
+        function initChart() {
+            const ctxCommit = document.getElementById('commitmentChart').getContext('2d');
+            commitmentChartInstance = new Chart(ctxCommit, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completados', 'Pendientes'],
+                    datasets: [{
+                        data: [0, 20],
+                        backgroundColor: ['#10b981', '#f3f4f6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
+                    }
+                }
+            });
+
+            const ctxVol = document.getElementById('volumeChart').getContext('2d');
+            volumeChartInstance = new Chart(ctxVol, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tren Inferior (kg)', 'Tren Superior (kg)'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#3b2559', '#ffd800'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
+                    }
+                }
+            });
+            updateChart();
+        }
+
+        function updateChart() {
+            if(!commitmentChartInstance || !volumeChartInstance) return;
+
+            let completed = 0;
+            let total = 0;
+            let volInferior = 0;
+            let volSuperior = 0;
+
+            for (const day in workoutData) {
+                if (workoutData[day].type === 'rest') continue;
+                
+                const isInferior = workoutData[day].title.includes('Inferior');
+                
+                workoutData[day].exercises.forEach(ex => {
+                    total++;
+                    if (ex.done) {
+                        completed++;
+                        if (ex.type === 'strength' && ex.actualWeight && !isNaN(ex.actualWeight)) {
+                            const weightVal = parseFloat(ex.actualWeight);
+                            const vol = weightVal * ex.reps * ex.sets;
+                            if (isInferior) volInferior += vol;
+                            else volSuperior += vol;
+                        }
+                    }
+                });
+            }
+
+            // Update Commitment Chart
+            commitmentChartInstance.data.datasets[0].data = [completed, total - completed];
+            commitmentChartInstance.update();
+
+            // Update Volume Chart
+            if (volInferior === 0 && volSuperior === 0) {
+                // Estado vacío / neutral
+                volumeChartInstance.data.datasets[0].data = [1, 1]; 
+                volumeChartInstance.data.datasets[0].backgroundColor = ['#e5e7eb', '#f3f4f6'];
+            } else {
+                volumeChartInstance.data.datasets[0].data = [volInferior, volSuperior];
+                volumeChartInstance.data.datasets[0].backgroundColor = ['#3b2559', '#ffd800'];
+            }
+            volumeChartInstance.update();
+        }
+
+        // --- PROFILE & IMC LOGIC ---
+        function renderProfile() {
+            const heightInput = parseFloat(document.getElementById('input-height').value);
+            if (heightInput > 0) {
+                userData.height = heightInput;
+            }
+
+            const history = userData.weightHistory;
+            const currentWeight = history[history.length - 1].weight;
+            const initialWeight = history[0].weight;
+            const weightLost = initialWeight - currentWeight;
+
+            // Actualizar textos de interfaz
+            document.getElementById('display-current-weight').innerText = currentWeight.toFixed(1);
+            
+            const lostText = weightLost >= 0 ? `-${weightLost.toFixed(1)} kg` : `+${Math.abs(weightLost).toFixed(1)} kg`;
+            const lostColor = weightLost > 0 ? 'text-green-600' : (weightLost === 0 ? 'text-gray-500' : 'text-red-500');
+            const lostEl = document.getElementById('display-weight-lost');
+            lostEl.innerText = lostText;
+            lostEl.className = `text-2xl font-bold ${lostColor}`;
+
+            // Calcular IMC = Peso (kg) / Altura (m)^2
+            const imc = currentWeight / (userData.height * userData.height);
+            document.getElementById('display-imc').innerText = imc.toFixed(1);
+
+            const statusEl = document.getElementById('display-imc-status');
+            if (imc < 18.5) {
+                statusEl.innerText = 'Bajo peso'; 
+                statusEl.className = 'text-xs font-bold block mt-1 text-blue-500';
+            } else if (imc < 24.9) {
+                statusEl.innerText = 'Peso Normal'; 
+                statusEl.className = 'text-xs font-bold block mt-1 text-green-500';
+            } else if (imc < 29.9) {
+                statusEl.innerText = 'Sobrepeso'; 
+                statusEl.className = 'text-xs font-bold block mt-1 text-yellow-600';
+            } else {
+                statusEl.innerText = 'Obesidad'; 
+                statusEl.className = 'text-xs font-bold block mt-1 text-red-500';
+            }
+
+            updateBodyChart();
+        }
+
+        function addWeightRecord() {
+            const inputEl = document.getElementById('new-weight-input');
+            const newWeight = parseFloat(inputEl.value);
+            
+            if (isNaN(newWeight) || newWeight <= 0) return;
+
+            const nextWeekNum = userData.weightHistory.length;
+            userData.weightHistory.push({
+                date: `Semana ${nextWeekNum}`,
+                weight: newWeight
+            });
+
+            inputEl.value = '';
+            renderProfile(); // Re-calcula IMC y actualiza gráfica
+        }
+
+        function initBodyChart() {
+            const ctx = document.getElementById('bodyWeightChart').getContext('2d');
+            bodyWeightChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Historial de Peso (kg)',
+                        data: [],
+                        borderColor: '#10b981', // Verde éxito
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#3b2559',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        tension: 0.4, // Curva suave
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#3b2559',
+                            titleColor: '#ffd800',
+                            bodyFont: { size: 14, weight: 'bold' },
+                            padding: 10,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            title: { display: true, text: 'Peso en Kilogramos (kg)', color: '#6b7280' },
+                            grid: { borderDash: [5, 5] }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+            updateBodyChart();
+        }
+
+        function updateBodyChart() {
+            if (!bodyWeightChartInstance) return;
+            
+            const labels = userData.weightHistory.map(entry => entry.date);
+            const data = userData.weightHistory.map(entry => entry.weight);
+
+            bodyWeightChartInstance.data.labels = labels;
+            bodyWeightChartInstance.data.datasets[0].data = data;
+            
+            // Ajustar el eje Y automáticamente para que los cambios se noten mejor visualmente
+            const minWeight = Math.min(...data) - 2;
+            const maxWeight = Math.max(...data) + 1;
+            bodyWeightChartInstance.options.scales.y.min = minWeight > 0 ? minWeight : 0;
+            bodyWeightChartInstance.options.scales.y.max = maxWeight;
+
+            bodyWeightChartInstance.update();
+        }
+
+        // --- UTILS ---
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Initialize App
+        window.onload = init;
+
+    </script>
+</body>
+</html>
